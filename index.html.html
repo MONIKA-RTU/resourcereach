@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ResourceReach — Find Help in Kota</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #0A1929; --navy2: #0D2137;
+      --teal: #0EA5A0; --teal-glow: #12C9C2; --teal-dim: #0A7A76;
+      --amber-light: #FCD34D; --cream: #F0F4F8;
+      --white: #FFFFFF; --card: #FFFFFF; --border: #E1EAF2; --muted: #64808F;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--navy); min-height: 100vh; overflow-x: hidden; }
+
+    /* HEADER */
+    header { background: var(--navy); padding: 0 16px; height: 60px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 20px rgba(0,0,0,0.3); }
+    .logo { display: flex; align-items: center; gap: 10px; }
+    .logo-mark { width: 34px; height: 34px; background: linear-gradient(135deg, var(--teal), var(--teal-glow)); border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 0 12px rgba(14,165,160,0.5); }
+    .logo-text { font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 1.1rem; color: var(--white); letter-spacing: -0.5px; }
+    .logo-text span { color: var(--teal-glow); }
+    .header-right { display: flex; align-items: center; gap: 8px; }
+    .header-badge { background: rgba(14,165,160,0.15); border: 1px solid rgba(14,165,160,0.3); color: var(--teal-glow); font-size: 0.68rem; font-weight: 600; padding: 4px 8px; border-radius: 20px; white-space: nowrap; }
+    .lang-toggle { display: flex; align-items: center; gap: 5px; background: rgba(255,255,255,0.08); border: 1.5px solid rgba(255,255,255,0.2); color: var(--white); border-radius: 22px; padding: 6px 14px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.82rem; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+    .lang-toggle:hover, .lang-toggle.hi { background: var(--teal); border-color: var(--teal); box-shadow: 0 0 14px rgba(14,165,160,0.4); }
+
+    /* HERO */
+    .hero { background: linear-gradient(160deg, var(--navy) 0%, var(--navy2) 60%, #0D2F3A 100%); padding: 60px 24px 100px; text-align: center; position: relative; overflow: hidden; }
+    .hero::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(14,165,160,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(14,165,160,0.06) 1px, transparent 1px); background-size: 40px 40px; animation: gridScroll 20s linear infinite; }
+    @keyframes gridScroll { from { background-position: 0 0; } to { background-position: 40px 40px; } }
+    .hero-orb { position: absolute; width: 400px; height: 400px; background: radial-gradient(circle, rgba(14,165,160,0.18) 0%, transparent 70%); top: -100px; left: 50%; transform: translateX(-50%); pointer-events: none; }
+    .hero-content { position: relative; z-index: 1; }
+    .hero-eyebrow { display: inline-flex; align-items: center; gap: 6px; background: rgba(14,165,160,0.12); border: 1px solid rgba(14,165,160,0.25); color: var(--teal-glow); font-size: 0.78rem; font-weight: 600; padding: 5px 14px; border-radius: 20px; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 20px; }
+    .pulse-dot { width: 7px; height: 7px; background: var(--teal-glow); border-radius: 50%; animation: pulse 1.8s infinite; }
+    @keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.7; transform:scale(1.3); } }
+    .hero h1 { font-family: 'Space Grotesk', sans-serif; font-size: clamp(1.9rem, 6vw, 3rem); font-weight: 800; color: var(--white); line-height: 1.2; max-width: 580px; margin: 0 auto 14px; letter-spacing: -1px; }
+    .hero h1 em { font-style: normal; background: linear-gradient(90deg, var(--teal-glow), var(--amber-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero p { color: #7FA8BE; font-size: 1rem; max-width: 440px; margin: 0 auto 32px; line-height: 1.65; }
+    .stats-bar { display: flex; justify-content: center; max-width: 460px; margin: 0 auto; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; overflow: hidden; }
+    .stat-item { flex: 1; padding: 14px 10px; text-align: center; border-right: 1px solid rgba(255,255,255,0.07); }
+    .stat-item:last-child { border-right: none; }
+    .stat-num { font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 1.5rem; color: var(--teal-glow); line-height: 1; margin-bottom: 4px; }
+    .stat-label { font-size: 0.68rem; color: #5A7F95; font-weight: 500; text-transform: uppercase; letter-spacing: 0.4px; }
+
+    /* WAVE */
+    .wave { display: block; width: 100%; margin-top: -2px; background: var(--navy2); }
+
+    /* SEARCH */
+    .search-section { max-width: 660px; margin: -50px auto 0; padding: 0 16px 40px; position: relative; z-index: 10; }
+    .search-card { background: var(--white); border-radius: 22px; padding: 26px; box-shadow: 0 20px 60px rgba(10,25,41,0.15), 0 0 0 1px rgba(14,165,160,0.08); transition: box-shadow 0.3s; }
+    .search-card:focus-within { box-shadow: 0 20px 60px rgba(10,25,41,0.18), 0 0 0 2px rgba(14,165,160,0.3); }
+    .search-card label { display: flex; align-items: center; gap: 8px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.92rem; color: var(--navy); margin-bottom: 12px; }
+    .label-icon { width: 26px; height: 26px; background: linear-gradient(135deg, var(--teal), var(--teal-glow)); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+    textarea { width: 100%; padding: 13px 15px; border: 2px solid var(--border); border-radius: 14px; font-family: 'Inter', sans-serif; font-size: 0.95rem; color: var(--navy); background: #F8FBFD; resize: none; outline: none; transition: border-color 0.2s; line-height: 1.55; }
+    textarea:focus { border-color: var(--teal); background: #fff; }
+    textarea::placeholder { color: #B0C4CE; }
+    .chips { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 13px; }
+    .chip { background: #F0FAF9; color: var(--teal-dim); border: 1.5px solid #C5EAE8; border-radius: 22px; padding: 7px 13px; font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.18s; font-family: 'Inter', sans-serif; }
+    .chip:hover { background: var(--teal); color: var(--white); border-color: var(--teal); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(14,165,160,0.25); }
+    .search-btn { margin-top: 16px; width: 100%; background: linear-gradient(135deg, var(--teal) 0%, var(--teal-glow) 100%); color: var(--white); border: none; border-radius: 14px; padding: 15px; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 20px rgba(14,165,160,0.35); display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .search-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(14,165,160,0.45); }
+    .search-btn:disabled { background: #A0C8C5; box-shadow: none; cursor: not-allowed; transform: none; }
+
+    /* RESULTS */
+    .results-section { max-width: 660px; margin: 0 auto; padding: 0 16px 20px; }
+    .results-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .results-label { font-family: 'Space Grotesk', sans-serif; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); }
+    .results-line { flex: 1; height: 1px; background: var(--border); }
+    .result-card { background: var(--card); border-radius: 16px; padding: 20px 22px; margin-bottom: 12px; border: 1.5px solid var(--border); box-shadow: 0 2px 16px rgba(10,25,41,0.06); animation: fadeUp 0.4s ease both; transition: transform 0.2s, box-shadow 0.2s; }
+    .result-card:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(10,25,41,0.1); }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+    .result-card .tag { display: inline-flex; align-items: center; gap: 5px; background: linear-gradient(135deg,#E8FAF9,#D0F2EF); color: var(--teal-dim); border-radius: 8px; padding: 4px 12px; font-size: 0.73rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px; }
+    .result-card h3 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.05rem; color: var(--navy); margin-bottom: 8px; }
+    .result-card p { font-size: 0.91rem; color: #4A6475; line-height: 1.65; margin-bottom: 10px; }
+    .tip-box { background: #F0FAF9; border-left: 3px solid var(--teal); border-radius: 0 10px 10px 0; padding: 10px 14px; font-size: 0.86rem; color: var(--teal-dim); font-weight: 500; margin-bottom: 12px; }
+    .search-link { display: inline-flex; align-items: center; gap: 5px; background: #F3F7FA; color: var(--navy); border: 1px solid var(--border); border-radius: 8px; padding: 6px 12px; font-size: 0.8rem; font-weight: 500; text-decoration: none; transition: all 0.15s; }
+    .search-link:hover { background: var(--navy); color: var(--white); }
+    .hotline-card { background: linear-gradient(135deg,#FFF7E6,#FFF3D6); border: 2px solid #F6CC6B; border-radius: 16px; padding: 20px 22px; margin-bottom: 12px; animation: fadeUp 0.4s ease both; }
+    .hotline-number { font-family: 'Space Grotesk', sans-serif; font-size: 2rem; font-weight: 800; color: #92600A; line-height: 1; margin: 8px 0 4px; }
+    .loader { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 40px 0; color: var(--muted); font-size: 0.9rem; }
+    .loader-ring { width: 44px; height: 44px; border: 3px solid #E1EAF2; border-top-color: var(--teal); border-radius: 50%; animation: spin 0.9s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* DIVIDER */
+    .section-divider { max-width: 660px; margin: 10px auto 28px; padding: 0 16px; display: flex; align-items: center; gap: 14px; }
+    .section-divider span { font-family: 'Space Grotesk', sans-serif; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); white-space: nowrap; }
+    .section-divider::before, .section-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* PLACES */
+    .places-section { max-width: 660px; margin: 0 auto; padding: 0 16px 16px; }
+    .places-intro { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+    .places-intro h2 { font-family: 'Space Grotesk', sans-serif; font-weight: 800; font-size: 1.15rem; color: var(--navy); }
+    .places-intro p { font-size: 0.84rem; color: var(--muted); margin-top: 3px; }
+    .city-badge { display: inline-flex; align-items: center; gap: 5px; background: var(--navy); color: var(--teal-glow); font-size: 0.73rem; font-weight: 600; padding: 5px 12px; border-radius: 20px; white-space: nowrap; }
+    .place-card { background: var(--white); border-radius: 16px; padding: 16px 18px; margin-bottom: 10px; border: 1.5px solid var(--border); display: flex; align-items: flex-start; gap: 12px; transition: all 0.2s; }
+    .place-card:hover { border-color: var(--teal); box-shadow: 0 4px 20px rgba(14,165,160,0.12); transform: translateX(3px); }
+    .place-icon { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; background: linear-gradient(135deg,#E8FAF9,#D0F2EF); }
+    .place-body { flex: 1; min-width: 0; }
+    .place-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 2px; }
+    .place-body h4 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 0.91rem; color: var(--navy); line-height: 1.3; }
+    .place-tag { display: inline-block; background: #EEF7F6; color: var(--teal-dim); border-radius: 6px; padding: 2px 9px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; flex-shrink: 0; }
+    .place-body p { font-size: 0.81rem; color: #5A7080; line-height: 1.55; margin-top: 4px; }
+    .place-detail { display: flex; align-items: center; gap: 12px; margin-top: 7px; flex-wrap: wrap; }
+    .place-detail span { font-size: 0.75rem; color: var(--muted); }
+    .free-badge { background: #DCFCE7; color: #166534; border-radius: 5px; padding: 2px 8px; font-size: 0.7rem; font-weight: 700; }
+
+    /* SHARE */
+    .share-section { max-width: 660px; margin: 28px auto 0; padding: 0 16px 44px; }
+    .share-card { background: linear-gradient(135deg, var(--navy) 0%, #0D2F3A 100%); border-radius: 20px; padding: 26px; text-align: center; position: relative; overflow: hidden; }
+    .share-card::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(14,165,160,0.05) 1px, transparent 1px), linear-gradient(90deg,rgba(14,165,160,0.05) 1px,transparent 1px); background-size: 30px 30px; }
+    .share-inner { position: relative; z-index: 1; }
+    .share-card h3 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 1.05rem; color: var(--white); margin-bottom: 6px; }
+    .share-card p { font-size: 0.84rem; color: #6A9AB0; margin-bottom: 18px; }
+    .share-buttons { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .share-btn-item { background: rgba(255,255,255,0.1); color: var(--white); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 11px 18px; font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 0.86rem; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
+    .share-btn-item:hover, .share-btn-item.primary { background: var(--teal); border-color: var(--teal); }
+    .share-toast { display: none; position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%); background: var(--navy); color: var(--white); padding: 12px 24px; border-radius: 30px; font-size: 0.88rem; font-weight: 600; z-index: 9999; box-shadow: 0 8px 30px rgba(0,0,0,0.3); border: 1px solid rgba(14,165,160,0.3); white-space: nowrap; }
+
+    /* REVEAL */
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.5s ease, transform 0.5s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* FOOTER */
+    footer { background: var(--navy); padding: 32px 20px 24px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); }
+    .footer-logo { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 14px; }
+    .footer-logo-mark { width: 30px; height: 30px; background: linear-gradient(135deg, var(--teal), var(--teal-glow)); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+    .footer-logo-text { font-family: 'Space Grotesk', sans-serif; font-weight: 700; color: var(--white); font-size: 1rem; }
+    .footer-logo-text span { color: var(--teal-glow); }
+    .footer-divider { width: 40px; height: 2px; background: linear-gradient(90deg, var(--teal), var(--teal-glow)); border-radius: 2px; margin: 0 auto 14px; }
+    .footer-name { font-family: 'Space Grotesk', sans-serif; font-weight: 700; color: var(--white); font-size: 1rem; margin-bottom: 4px; }
+    .footer-college { color: var(--teal-glow); font-size: 0.84rem; margin-bottom: 12px; }
+    .footer-hack { display: inline-flex; align-items: center; gap: 6px; background: rgba(14,165,160,0.1); border: 1px solid rgba(14,165,160,0.2); color: #5A8FA0; font-size: 0.75rem; padding: 5px 14px; border-radius: 20px; }
+
+    @media (max-width: 500px) {
+      .hero { padding: 48px 16px 90px; }
+      .search-card { padding: 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">🤝</div>
+    <div class="logo-text">Resource<span>Reach</span></div>
+  </div>
+  <div class="header-right">
+    <div class="header-badge">🇮🇳 Kota, Rajasthan</div>
+    <button class="lang-toggle" id="langToggle" onclick="toggleLang()">
+      <span id="langIcon">अ</span>
+      <span id="langLabel">हिंदी</span>
+    </button>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-orb"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">
+      <div class="pulse-dot"></div>
+      <span id="t-eyebrow">AI-Powered Help Finder</span>
+    </div>
+    <h1 id="t-h1">Find help <em>right now,</em><br/>no matter your situation.</h1>
+    <p id="t-sub">Describe what you need in plain words — food, shelter, clothing, medical care — and our AI will point you to the right resources.</p>
+    <div class="stats-bar">
+      <div class="stat-item">
+        <div class="stat-num" id="stat1">0</div>
+        <div class="stat-label" id="t-s1">Resources Listed</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="stat2">0</div>
+        <div class="stat-label" id="t-s2">Helplines Available</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="stat3">0</div>
+        <div class="stat-label" id="t-s3">Categories Covered</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<svg class="wave" viewBox="0 0 1440 40" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" height="40"><path d="M0,40 C360,0 1080,0 1440,40 L1440,0 L0,0 Z" fill="#0D2137"/></svg>
+
+<div class="search-section">
+  <div class="search-card">
+    <label for="queryBox">
+      <div class="label-icon">💬</div>
+      <span id="t-label">What do you need help with?</span>
+    </label>
+    <textarea id="queryBox" rows="3" placeholder="e.g. I need a warm meal tonight and a place to sleep with my two kids…"></textarea>
+    <div class="chips" id="chipsContainer">
+      <button class="chip" onclick="fillChip(this)">🍽️ Food</button>
+      <button class="chip" onclick="fillChip(this)">🏠 Shelter</button>
+      <button class="chip" onclick="fillChip(this)">👕 Clothing</button>
+      <button class="chip" onclick="fillChip(this)">🏥 Medical</button>
+      <button class="chip" onclick="fillChip(this)">💼 Jobs</button>
+      <button class="chip" onclick="fillChip(this)">📄 Legal / ID</button>
+    </div>
+    <button class="search-btn" id="searchBtn" onclick="findResources()">
+      <span id="btnIcon">✨</span>
+      <span id="btnText">Find Resources</span>
+    </button>
+  </div>
+</div>
+
+<div class="results-section" id="results"></div>
+
+<div class="section-divider reveal">
+  <span id="t-placesDiv">📍 Real places in Kota</span>
+</div>
+
+<div class="places-section">
+  <div class="places-intro reveal">
+    <div>
+      <h2 id="t-placesH">Walk-in Resources Near You</h2>
+      <p id="t-placesSub">No appointment needed — help is already here.</p>
+    </div>
+    <div class="city-badge">📍 Kota, Rajasthan</div>
+  </div>
+
+  <div class="place-card reveal">
+    <div class="place-icon">🍽️</div>
+    <div class="place-body">
+      <div class="place-top">
+        <h4 id="p1-name">Annapurna Rasoi — Govt. Subsidised Canteen</h4>
+        <span class="place-tag" id="p1-tag">Food</span>
+      </div>
+      <p id="p1-desc">Hot meals at just ₹5–₹8 per plate. Multiple locations across Kota city, run by the Rajasthan government for those in need.</p>
+      <div class="place-detail">
+        <span id="p1-time">🕐 Daily, morning & evening</span>
+        <span class="free-badge">₹5 per meal</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="place-card reveal">
+    <div class="place-icon">🏠</div>
+    <div class="place-body">
+      <div class="place-top">
+        <h4 id="p2-name">Urban Shelter Home (Rein Basera), Kota</h4>
+        <span class="place-tag" id="p2-tag">Shelter</span>
+      </div>
+      <p id="p2-desc">Night shelter run by Kota Municipal Corporation. Free beds, blankets, and basic amenities for homeless individuals. Open daily dusk to dawn.</p>
+      <div class="place-detail">
+        <span id="p2-time">🌙 Dusk to dawn daily</span>
+        <span class="free-badge" id="t-free1">Free</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="place-card reveal">
+    <div class="place-icon">🏥</div>
+    <div class="place-body">
+      <div class="place-top">
+        <h4 id="p3-name">New Medical College Hospital (NMCH), Kota</h4>
+        <span class="place-tag" id="p3-tag">Medical</span>
+      </div>
+      <p id="p3-desc">Government hospital with free OPD, emergency care, and medicines under Ayushman Bharat. Located on Rangbari Road, Kota.</p>
+      <div class="place-detail">
+        <span>📍 Rangbari Road, Kota</span>
+        <span id="p3-time">🕐 24/7 Emergency</span>
+        <span class="free-badge" id="t-free2">Free OPD</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="place-card reveal">
+    <div class="place-icon">👕</div>
+    <div class="place-body">
+      <div class="place-top">
+        <h4 id="p4-name">Sewa Bharati Kota</h4>
+        <span class="place-tag" id="p4-tag">Clothing</span>
+      </div>
+      <p id="p4-desc">NGO distributing clothes, blankets, and essential supplies. Especially active in winter drives across Kota.</p>
+      <div class="place-detail">
+        <span id="p4-time">📞 Contact Sewa Bharati office, Kota</span>
+        <span class="free-badge" id="t-free3">Free</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="place-card reveal">
+    <div class="place-icon">⚖️</div>
+    <div class="place-body">
+      <div class="place-top">
+        <h4 id="p5-name">District Legal Services Authority (DLSA), Kota</h4>
+        <span class="place-tag" id="p5-tag">Legal Aid</span>
+      </div>
+      <p id="p5-desc">Free legal aid for underprivileged citizens. Located at the District Court Complex, Kota.</p>
+      <div class="place-detail">
+        <span>📍 District Court Complex, Kota</span>
+        <span id="p5-time">🕐 Mon–Sat, 10am–5pm</span>
+        <span class="free-badge" id="t-free4">Free</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="place-card reveal">
+    <div class="place-icon">📞</div>
+    <div class="place-body">
+      <div class="place-top">
+        <h4 id="p6-name">Rajasthan Social Welfare Helplines</h4>
+        <span class="place-tag" id="p6-tag">Helpline</span>
+      </div>
+      <p id="p6-desc">Call <strong>181</strong> (Women Helpline) or <strong>1800-180-6127</strong> (Social Justice Dept.) for referrals to shelters, food, and welfare schemes anywhere in Rajasthan.</p>
+      <div class="place-detail">
+        <span id="p6-time">🕐 24/7, Free to call</span>
+        <span class="free-badge" id="t-free5">Free Call</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="share-section reveal">
+  <div class="share-card">
+    <div class="share-inner">
+      <h3 id="t-shareH">Know someone who needs help?</h3>
+      <p id="t-shareSub">Share ResourceReach — it takes 2 seconds and could change someone's life.</p>
+      <div class="share-buttons">
+        <button class="share-btn-item primary" onclick="sharePage()">🔗 <span id="t-copyBtn">Copy Link</span></button>
+        <button class="share-btn-item" onclick="shareWhatsApp()">💬 WhatsApp</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="share-toast" id="shareToast">✅ <span id="t-toast">Link copied to clipboard!</span></div>
+
+<footer>
+  <div class="footer-logo">
+    <div class="footer-logo-mark">🤝</div>
+    <div class="footer-logo-text">Resource<span>Reach</span></div>
+  </div>
+  <div class="footer-divider"></div>
+  <div class="footer-name">Monika Choudhary</div>
+  <div class="footer-college">Rajasthan Technical University, Kota · Information Technology</div>
+  <div class="footer-hack">🏆 Built for Youth Code × AI Hackathon · June 2026</div>
+</footer>
+
+<script>
+// ── TRANSLATIONS ──
+var T = {
+  en: {
+    eyebrow: "AI-Powered Help Finder",
+    h1: "Find help <em>right now,</em><br/>no matter your situation.",
+    sub: "Describe what you need in plain words — food, shelter, clothing, medical care — and our AI will point you to the right resources.",
+    s1: "Resources Listed", s2: "Helplines Available", s3: "Categories Covered",
+    label: "What do you need help with?",
+    placeholder: "e.g. I need a warm meal tonight and a place to sleep with my two kids…",
+    btnText: "Find Resources",
+    chips: ["🍽️ Food","🏠 Shelter","👕 Clothing","🏥 Medical","💼 Jobs","📄 Legal / ID"],
+    chipVals: ["I need food and a warm meal today","I need emergency shelter for tonight","I need clothing and hygiene supplies","I need medical or mental health care","I need help with job search or employment","I need legal aid or ID documents"],
+    placesDiv: "📍 Real places in Kota",
+    placesH: "Walk-in Resources Near You",
+    placesSub: "No appointment needed — help is already here.",
+    p1n: "Annapurna Rasoi — Govt. Subsidised Canteen", p1t: "Food", p1d: "Hot meals at just ₹5–₹8 per plate. Multiple locations across Kota city, run by the Rajasthan government for those in need.", p1time: "🕐 Daily, morning & evening",
+    p2n: "Urban Shelter Home (Rein Basera), Kota", p2t: "Shelter", p2d: "Night shelter run by Kota Municipal Corporation. Free beds, blankets, and basic amenities for homeless individuals. Open daily dusk to dawn.", p2time: "🌙 Dusk to dawn daily",
+    free1: "Free", p3n: "New Medical College Hospital (NMCH), Kota", p3t: "Medical", p3d: "Government hospital with free OPD, emergency care, and medicines under Ayushman Bharat. Located on Rangbari Road, Kota.", p3time: "🕐 24/7 Emergency", free2: "Free OPD",
+    p4n: "Sewa Bharati Kota", p4t: "Clothing", p4d: "NGO distributing clothes, blankets, and essential supplies. Especially active in winter drives across Kota.", p4time: "📞 Contact Sewa Bharati office, Kota", free3: "Free",
+    p5n: "District Legal Services Authority (DLSA), Kota", p5t: "Legal Aid", p5d: "Free legal aid for underprivileged citizens. Located at the District Court Complex, Kota.", p5time: "🕐 Mon–Sat, 10am–5pm", free4: "Free",
+    p6n: "Rajasthan Social Welfare Helplines", p6t: "Helpline", p6d: "Call <strong>181</strong> (Women Helpline) or <strong>1800-180-6127</strong> (Social Justice Dept.) for referrals to shelters, food, and welfare schemes anywhere in Rajasthan.", p6time: "🕐 24/7, Free to call", free5: "Free Call",
+    shareH: "Know someone who needs help?", shareSub: "Share ResourceReach — it takes 2 seconds and could change someone's life.", copyBtn: "Copy Link", toast: "Link copied to clipboard!",
+    langBtn: "हिंदी", langIcon: "अ",
+    loader: "Our AI is finding the best resources for you…",
+    aiLabel: "AI Recommendations", searchInKota: "🔍 Search in Kota →",
+    hotlineLabel: "📞 Rajasthan Helplines", hotlineSub: "Free to call · 24/7 · Available in Hindi & English",
+    errH: "Something went wrong", errP: "Please try again. For immediate help, call <strong>181</strong> or <strong>1800-180-6127</strong> — free, 24/7.",
+    finding: "Finding resources…"
+  },
+  hi: {
+    eyebrow: "AI-संचालित सहायता खोजक",
+    h1: "अभी मदद पाएं, <em>किसी भी हाल में।</em>",
+    sub: "सरल शब्दों में बताएं आपको क्या चाहिए — खाना, आश्रय, कपड़े, इलाज — हमारी AI आपको सही जगह तक पहुंचाएगी।",
+    s1: "उपलब्ध संसाधन", s2: "हेल्पलाइन उपलब्ध", s3: "श्रेणियां शामिल",
+    label: "आपको किस चीज़ में मदद चाहिए?",
+    placeholder: "उदा. मुझे आज रात खाना और बच्चों के साथ रहने की जगह चाहिए…",
+    btnText: "संसाधन खोजें",
+    chips: ["🍽️ खाना","🏠 आश्रय","👕 कपड़े","🏥 चिकित्सा","💼 नौकरी","📄 कानूनी / ID"],
+    chipVals: ["मुझे आज खाना और गर्म भोजन चाहिए","मुझे आज रात आपातकालीन आश्रय चाहिए","मुझे कपड़े और स्वच्छता की जरूरत है","मुझे चिकित्सा या मानसिक स्वास्थ्य सहायता चाहिए","मुझे नौकरी खोजने में मदद चाहिए","मुझे कानूनी सहायता या ID दस्तावेज़ चाहिए"],
+    placesDiv: "📍 कोटा में वास्तविक स्थान",
+    placesH: "आपके पास उपलब्ध संसाधन",
+    placesSub: "कोई अपॉइंटमेंट नहीं — मदद यहीं है।",
+    p1n: "अन्नपूर्णा रसोई — सरकारी सब्सिडी कैंटीन", p1t: "खाना", p1d: "सिर्फ ₹5–₹8 प्रति थाली में गरम भोजन। राजस्थान सरकार द्वारा कोटा में कई स्थानों पर चलाया जाता है।", p1time: "🕐 प्रतिदिन, सुबह और शाम",
+    p2n: "शहरी आश्रय गृह (रैन बसेरा), कोटा", p2t: "आश्रय", p2d: "कोटा नगर निगम द्वारा संचालित रात्रि आश्रय। बेघर लोगों के लिए मुफ्त बिस्तर, कंबल और बुनियादी सुविधाएं। रोज़ाना शाम से सुबह तक खुला।", p2time: "🌙 शाम से सुबह तक",
+    free1: "मुफ्त", p3n: "न्यू मेडिकल कॉलेज हॉस्पिटल (NMCH), कोटा", p3t: "चिकित्सा", p3d: "सरकारी अस्पताल जहाँ आयुष्मान भारत योजना के तहत मुफ्त OPD, आपातकालीन देखभाल और दवाइयाँ मिलती हैं। रंगबाड़ी रोड, कोटा।", p3time: "🕐 24/7 आपातकाल", free2: "मुफ्त OPD",
+    p4n: "सेवा भारती कोटा", p4t: "कपड़े", p4d: "जरूरतमंद लोगों को कपड़े, कंबल और जरूरी सामान वितरित करने वाला NGO। खासकर सर्दियों में कोटा में सक्रिय।", p4time: "📞 सेवा भारती कार्यालय, कोटा से संपर्क करें", free3: "मुफ्त",
+    p5n: "जिला विधिक सेवा प्राधिकरण (DLSA), कोटा", p5t: "कानूनी सहायता", p5d: "वंचित नागरिकों के लिए मुफ्त कानूनी सहायता। जिला न्यायालय परिसर, कोटा में स्थित।", p5time: "🕐 सोम–शनि, सुबह 10–शाम 5", free4: "मुफ्त",
+    p6n: "राजस्थान सामाजिक कल्याण हेल्पलाइन", p6t: "हेल्पलाइन", p6d: "<strong>181</strong> (महिला हेल्पलाइन) या <strong>1800-180-6127</strong> (सामाजिक न्याय विभाग) पर कॉल करें। राजस्थान में आश्रय, भोजन और कल्याण योजनाओं के लिए।", p6time: "🕐 24/7, मुफ्त कॉल", free5: "मुफ्त कॉल",
+    shareH: "किसी को मदद की जरूरत है?", shareSub: "ResourceReach शेयर करें — 2 सेकंड में किसी की जिंदगी बदल सकती है।", copyBtn: "लिंक कॉपी करें", toast: "लिंक क्लिपबोर्ड पर कॉपी हो गया!",
+    langBtn: "English", langIcon: "A",
+    loader: "हमारी AI आपके लिए सर्वोत्तम संसाधन खोज रही है…",
+    aiLabel: "AI सुझाव", searchInKota: "🔍 कोटा में खोजें →",
+    hotlineLabel: "📞 राजस्थान हेल्पलाइन", hotlineSub: "मुफ्त कॉल · 24/7 · हिंदी और अंग्रेज़ी में उपलब्ध",
+    errH: "कुछ गलत हुआ", errP: "कृपया फिर कोशिश करें। तुरंत मदद के लिए <strong>181</strong> या <strong>1800-180-6127</strong> पर कॉल करें।",
+    finding: "संसाधन खोजे जा रहे हैं…"
+  }
+};
+
+var lang = "en";
+
+function applyLang() {
+  var t = T[lang];
+  document.getElementById("t-eyebrow").textContent = t.eyebrow;
+  document.getElementById("t-h1").innerHTML = t.h1;
+  document.getElementById("t-sub").textContent = t.sub;
+  document.getElementById("t-s1").textContent = t.s1;
+  document.getElementById("t-s2").textContent = t.s2;
+  document.getElementById("t-s3").textContent = t.s3;
+  document.getElementById("t-label").textContent = t.label;
+  document.getElementById("queryBox").placeholder = t.placeholder;
+  document.getElementById("btnText").textContent = t.btnText;
+  document.getElementById("t-placesDiv").textContent = t.placesDiv;
+  document.getElementById("t-placesH").textContent = t.placesH;
+  document.getElementById("t-placesSub").textContent = t.placesSub;
+  document.getElementById("p1-name").textContent = t.p1n;
+  document.getElementById("p1-tag").textContent = t.p1t;
+  document.getElementById("p1-desc").textContent = t.p1d;
+  document.getElementById("p1-time").textContent = t.p1time;
+  document.getElementById("p2-name").textContent = t.p2n;
+  document.getElementById("p2-tag").textContent = t.p2t;
+  document.getElementById("p2-desc").textContent = t.p2d;
+  document.getElementById("p2-time").textContent = t.p2time;
+  document.getElementById("t-free1").textContent = t.free1;
+  document.getElementById("p3-name").textContent = t.p3n;
+  document.getElementById("p3-tag").textContent = t.p3t;
+  document.getElementById("p3-desc").textContent = t.p3d;
+  document.getElementById("p3-time").textContent = t.p3time;
+  document.getElementById("t-free2").textContent = t.free2;
+  document.getElementById("p4-name").textContent = t.p4n;
+  document.getElementById("p4-tag").textContent = t.p4t;
+  document.getElementById("p4-desc").textContent = t.p4d;
+  document.getElementById("p4-time").textContent = t.p4time;
+  document.getElementById("t-free3").textContent = t.free3;
+  document.getElementById("p5-name").textContent = t.p5n;
+  document.getElementById("p5-tag").textContent = t.p5t;
+  document.getElementById("p5-desc").textContent = t.p5d;
+  document.getElementById("p5-time").textContent = t.p5time;
+  document.getElementById("t-free4").textContent = t.free4;
+  document.getElementById("p6-name").textContent = t.p6n;
+  document.getElementById("p6-tag").textContent = t.p6t;
+  document.getElementById("p6-desc").innerHTML = t.p6d;
+  document.getElementById("p6-time").textContent = t.p6time;
+  document.getElementById("t-free5").textContent = t.free5;
+  document.getElementById("t-shareH").textContent = t.shareH;
+  document.getElementById("t-shareSub").textContent = t.shareSub;
+  document.getElementById("t-copyBtn").textContent = t.copyBtn;
+  document.getElementById("t-toast").textContent = t.toast;
+  document.getElementById("langLabel").textContent = t.langBtn;
+  document.getElementById("langIcon").textContent = t.langIcon;
+
+  // Update chips
+  var chips = document.querySelectorAll("#chipsContainer .chip");
+  for (var i = 0; i < chips.length; i++) {
+    chips[i].textContent = t.chips[i];
+    chips[i].setAttribute("data-val", t.chipVals[i]);
+  }
+
+  // Toggle button style
+  if (lang === "hi") {
+    document.getElementById("langToggle").classList.add("hi");
+  } else {
+    document.getElementById("langToggle").classList.remove("hi");
+  }
+
+  // Clear results on switch
+  document.getElementById("results").innerHTML = "";
+}
+
+function toggleLang() {
+  lang = (lang === "en") ? "hi" : "en";
+  applyLang();
+}
+
+function fillChip(btn) {
+  var val = btn.getAttribute("data-val") || btn.textContent;
+  document.getElementById("queryBox").value = val;
+  document.getElementById("queryBox").focus();
+}
+
+// Set initial chip data-vals
+window.addEventListener("load", function() {
+  var chips = document.querySelectorAll("#chipsContainer .chip");
+  var vals = T.en.chipVals;
+  for (var i = 0; i < chips.length; i++) {
+    chips[i].setAttribute("data-val", vals[i]);
+  }
+  // Counter animation
+  function counter(el, target) {
+    var start = 0;
+    var step = target / 60;
+    var timer = setInterval(function() {
+      start = Math.min(start + step, target);
+      el.textContent = Math.floor(start);
+      if (start >= target) clearInterval(timer);
+    }, 16);
+  }
+  setTimeout(function() {
+    counter(document.getElementById("stat1"), 6);
+    counter(document.getElementById("stat2"), 3);
+    counter(document.getElementById("stat3"), 6);
+  }, 400);
+
+  // Scroll reveal
+  var obs = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add("visible"); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll(".reveal").forEach(function(el) { obs.observe(el); });
+});
+
+// Enter key
+document.addEventListener("DOMContentLoaded", function() {
+  document.getElementById("queryBox").addEventListener("keydown", function(e) {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); findResources(); }
+  });
+});
+
+async function findResources() {
+  var query = document.getElementById("queryBox").value.trim();
+  if (!query) {
+    document.getElementById("queryBox").style.borderColor = "#EF4444";
+    setTimeout(function() { document.getElementById("queryBox").style.borderColor = ""; }, 1200);
+    return;
+  }
+
+  var t = T[lang];
+  var btn = document.getElementById("searchBtn");
+  var resultsDiv = document.getElementById("results");
+
+  btn.disabled = true;
+  document.getElementById("btnIcon").textContent = "";
+  document.getElementById("btnText").textContent = t.finding;
+
+  resultsDiv.innerHTML = '<div class="loader"><div class="loader-ring"></div><span>' + t.loader + '</span></div>';
+  resultsDiv.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  var langInstruction = lang === "hi"
+    ? "IMPORTANT: Respond entirely in Hindi (Devanagari script). All JSON text fields must be in Hindi."
+    : "Respond in English.";
+
+  var systemPrompt = "You are ResourceReach, a compassionate assistant helping people in India find community resources for food, shelter, clothing, medical care, jobs, and legal aid.\n\n" + langInstruction + "\n\nWhen someone describes their situation, respond ONLY with valid JSON in this exact format:\n{\"opening\":\"One warm empathetic sentence.\",\"resources\":[{\"category\":\"Short label\",\"emoji\":\"single emoji\",\"description\":\"1-2 sentences on what this resource provides.\",\"tip\":\"One specific actionable tip.\",\"searchFor\":\"What to search on Google locally in India\"}],\"closing\":\"One encouraging closing sentence mentioning helpline 181 or 1800-180-6127 for Rajasthan.\"}\n\nProvide 3-5 resources. Mention Ayushman Bharat, PM schemes, local NGOs where relevant. No extra text outside the JSON.";
+
+  try {
+    var response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1000,
+        system: systemPrompt,
+        messages: [{ role: "user", content: query }]
+      })
+    });
+
+    var data = await response.json();
+    var raw = data.content.map(function(b) { return b.text || ""; }).join("");
+    var clean = raw.replace(/```json|```/g, "").trim();
+    var parsed = JSON.parse(clean);
+
+    var html = '<div class="results-header"><div class="results-label">' + t.aiLabel + '</div><div class="results-line"></div></div>';
+    html += '<div class="result-card" style="border-left:3px solid var(--teal);"><p style="font-size:0.97rem;color:#1A3A50;font-weight:600;line-height:1.6;">' + parsed.opening + '</p></div>';
+
+    for (var i = 0; i < parsed.resources.length; i++) {
+      var r = parsed.resources[i];
+      var googleUrl = "https://www.google.com/search?q=" + encodeURIComponent(r.searchFor + " Kota Rajasthan");
+      html += '<div class="result-card" style="animation-delay:' + (i * 0.1) + 's">';
+      html += '<div class="tag">' + (r.emoji || "🔹") + " " + r.category + '</div>';
+      html += '<h3>' + r.category + '</h3>';
+      html += '<p>' + r.description + '</p>';
+      html += '<div class="tip-box">💡 ' + r.tip + '</div>';
+      html += '<div><a class="search-link" href="' + googleUrl + '" target="_blank" rel="noopener">' + t.searchInKota + '</a></div>';
+      html += '</div>';
+    }
+
+    html += '<div class="hotline-card">';
+    html += '<div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:#B07A20;">' + t.hotlineLabel + '</div>';
+    html += '<div class="hotline-number">181 &nbsp;/&nbsp; 1800-180-6127</div>';
+    html += '<p style="font-size:0.88rem;color:#92600A;margin-top:6px;line-height:1.55;">' + parsed.closing + '</p>';
+    html += '<p style="font-size:0.8rem;color:#B07A20;margin-top:8px;">' + t.hotlineSub + '</p>';
+    html += '</div>';
+
+    resultsDiv.innerHTML = html;
+
+  } catch (err) {
+    resultsDiv.innerHTML = '<div class="result-card" style="border-left:3px solid #EF4444;"><h3 style="color:#DC2626;margin-bottom:8px;">' + t.errH + '</h3><p>' + t.errP + '</p></div>';
+  }
+
+  btn.disabled = false;
+  document.getElementById("btnIcon").textContent = "✨";
+  document.getElementById("btnText").textContent = T[lang].btnText;
+}
+
+function sharePage() {
+  var url = window.location.href;
+  if (navigator.share) {
+    navigator.share({ title: "ResourceReach", text: "Free AI tool to find help in Kota, Rajasthan", url: url })
+      .catch(function() { copyLink(url); });
+  } else {
+    copyLink(url);
+  }
+}
+
+function shareWhatsApp() {
+  var text = encodeURIComponent("🤝 *ResourceReach* — Free AI tool to find food, shelter, medical care & more.\n\nKota, Rajasthan.\n\n" + window.location.href);
+  window.open("https://wa.me/?text=" + text, "_blank");
+}
+
+function copyLink(url) {
+  navigator.clipboard.writeText(url).then(function() {
+    var toast = document.getElementById("shareToast");
+    toast.style.display = "block";
+    setTimeout(function() { toast.style.display = "none"; }, 2500);
+  });
+}
+</script>
+</body>
+</html>
