@@ -517,7 +517,118 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 });
 
-async function findResources() {
+// ── BUILT-IN RESOURCE DATABASE ──
+var DB = {
+  food: {
+    en: { opening: "You deserve a warm meal — here's where to find food support in Kota right away.", closing: "You are not alone. Call 181 or 1800-180-6127 anytime for more help across Rajasthan.",
+      resources: [
+        { emoji:"🍽️", category:"Annapurna Rasoi", description:"Government subsidised canteen serving hot meals at just ₹5–₹8 per plate. Multiple locations across Kota city run by the Rajasthan government.", tip:"Arrive before meal times (morning 8–10am, evening 6–8pm). No ID required.", searchFor:"Annapurna Rasoi Kota location" },
+        { emoji:"🛕", category:"Temple & Gurudwara Langar", description:"Most large temples and gurudwaras in Kota serve free langar (community meals) daily to anyone who comes, no questions asked.", tip:"Gurudwara langar is always free and open to all religions — just walk in.", searchFor:"Gurudwara langar free food Kota" },
+        { emoji:"🤝", category:"Sewa Bharati Food Drive", description:"Sewa Bharati Kota regularly distributes food packets and cooked meals to people in need, especially during festivals and winters.", tip:"Call the Sewa Bharati Kota office or visit their local centre to ask about ongoing distributions.", searchFor:"Sewa Bharati Kota food distribution" }
+      ]
+    },
+    hi: { opening: "आपको गर्म खाना मिलना चाहिए — यहाँ कोटा में खाने की मदद के लिए जाएं।", closing: "आप अकेले नहीं हैं। राजस्थान में और मदद के लिए 181 या 1800-180-6127 पर कभी भी कॉल करें।",
+      resources: [
+        { emoji:"🍽️", category:"अन्नपूर्णा रसोई", description:"राजस्थान सरकार द्वारा कोटा में चलाई जाने वाली सब्सिडी कैंटीन जहाँ सिर्फ ₹5–₹8 में गरम भोजन मिलता है।", tip:"सुबह 8–10 और शाम 6–8 बजे पहुंचें। कोई ID नहीं चाहिए।", searchFor:"अन्नपूर्णा रसोई कोटा" },
+        { emoji:"🛕", category:"मंदिर और गुरुद्वारा लंगर", description:"कोटा के अधिकांश बड़े मंदिरों और गुरुद्वारों में रोज़ाना मुफ्त लंगर परोसा जाता है — किसी भी धर्म के व्यक्ति आ सकते हैं।", tip:"गुरुद्वारे का लंगर हमेशा मुफ्त और सबके लिए खुला होता है — बस अंदर आ जाएं।", searchFor:"गुरुद्वारा लंगर मुफ्त खाना कोटा" },
+        { emoji:"🤝", category:"सेवा भारती फूड ड्राइव", description:"सेवा भारती कोटा जरूरतमंद लोगों को खाने के पैकेट और पका हुआ खाना बांटती है, खासकर त्योहारों और सर्दियों में।", tip:"सेवा भारती कोटा कार्यालय से संपर्क करें या उनके स्थानीय केंद्र पर जाएं।", searchFor:"सेवा भारती कोटा खाना वितरण" }
+      ]
+    }
+  },
+  shelter: {
+    en: { opening: "Everyone deserves a safe place to rest — here are shelter options available in Kota.", closing: "Stay safe tonight. Call 181 anytime if you need further support or referrals in Rajasthan.",
+      resources: [
+        { emoji:"🏠", category:"Rein Basera Night Shelter", description:"Urban Shelter Home run by Kota Municipal Corporation. Free beds, blankets, and basic amenities for homeless individuals. Open every night.", tip:"Arrive before sunset to secure a bed. The shelter is free and no documents are required.", searchFor:"Rein Basera night shelter Kota" },
+        { emoji:"🛕", category:"Dharamshala / Temple Rest Houses", description:"Many temples and religious trusts in Kota offer free or very low-cost shelter for people in need, especially pilgrims and those in distress.", tip:"Ask at any large temple — they often have dharamshalas attached that accept those in need.", searchFor:"dharamshala free stay Kota Rajasthan" },
+        { emoji:"📞", category:"Shelter Helpline — 181", description:"Call 181 (Rajasthan Women & Family Helpline) or 1800-180-6127 to be referred to the nearest government shelter or care home in your area.", tip:"This helpline is free, available 24/7, and can arrange emergency accommodation referrals.", searchFor:"government shelter home Kota Rajasthan" }
+      ]
+    },
+    hi: { opening: "हर किसी को सोने के लिए सुरक्षित जगह मिलनी चाहिए — कोटा में ये आश्रय स्थान उपलब्ध हैं।", closing: "आज रात सुरक्षित रहें। राजस्थान में और सहायता के लिए 181 पर कभी भी कॉल करें।",
+      resources: [
+        { emoji:"🏠", category:"रैन बसेरा रात्रि आश्रय", description:"कोटा नगर निगम द्वारा संचालित शहरी आश्रय गृह। बेघर लोगों के लिए मुफ्त बिस्तर, कंबल और बुनियादी सुविधाएं। हर रात खुला।", tip:"बिस्तर पाने के लिए सूर्यास्त से पहले पहुंचें। यह मुफ्त है और कोई दस्तावेज़ नहीं चाहिए।", searchFor:"रैन बसेरा कोटा" },
+        { emoji:"🛕", category:"धर्मशाला / मंदिर विश्राम गृह", description:"कोटा के कई मंदिर और धार्मिक ट्रस्ट जरूरतमंद लोगों को मुफ्त या बहुत कम कीमत में आश्रय देते हैं।", tip:"किसी भी बड़े मंदिर में पूछें — अक्सर उनसे जुड़ी धर्मशालाएं होती हैं जो जरूरतमंदों को स्वीकार करती हैं।", searchFor:"धर्मशाला मुफ्त रहना कोटा राजस्थान" },
+        { emoji:"📞", category:"आश्रय हेल्पलाइन — 181", description:"181 या 1800-180-6127 पर कॉल करें और अपने क्षेत्र के निकटतम सरकारी आश्रय गृह में रेफरल पाएं।", tip:"यह हेल्पलाइन मुफ्त है, 24/7 उपलब्ध है, और आपातकालीन आवास की व्यवस्था कर सकती है।", searchFor:"सरकारी आश्रय गृह कोटा राजस्थान" }
+      ]
+    }
+  },
+  clothing: {
+    en: { opening: "Help with clothing and essentials is available — here's where to find it in Kota.", closing: "You deserve dignity and warmth. Call 181 or 1800-180-6127 for more welfare support in Rajasthan.",
+      resources: [
+        { emoji:"👕", category:"Sewa Bharati Kota", description:"Sewa Bharati distributes free clothing, blankets, and hygiene essentials to people in need. Especially active during winters across Kota.", tip:"Visit or call their Kota office directly — they also do home visits for elderly or disabled individuals.", searchFor:"Sewa Bharati clothing distribution Kota" },
+        { emoji:"🕌", category:"NGO Clothing Drives", description:"Several local NGOs and mosques in Kota run regular clothing donation drives. Items like winter wear, sarees, shirts, and footwear are distributed free.", tip:"Search for 'kapda vitran' events on local WhatsApp groups or Facebook groups for Kota.", searchFor:"free clothing distribution NGO Kota Rajasthan" },
+        { emoji:"🏛️", category:"Social Welfare Department", description:"Rajasthan's Social Justice & Empowerment Department provides free clothing kits under various welfare schemes to BPL families and homeless individuals.", tip:"Visit the District Social Welfare Office in Kota with any ID proof to apply for assistance.", searchFor:"social welfare department Kota clothing scheme" }
+      ]
+    },
+    hi: { opening: "कपड़ों और जरूरी सामान में मदद उपलब्ध है — कोटा में यहाँ जाएं।", closing: "आप सम्मान और गर्माहट के हकदार हैं। राजस्थान में और कल्याण सहायता के लिए 181 पर कॉल करें।",
+      resources: [
+        { emoji:"👕", category:"सेवा भारती कोटा", description:"सेवा भारती जरूरतमंद लोगों को मुफ्त कपड़े, कंबल और स्वच्छता की जरूरी चीजें वितरित करती है। सर्दियों में विशेष रूप से सक्रिय।", tip:"उनके कोटा कार्यालय पर सीधे जाएं या कॉल करें।", searchFor:"सेवा भारती कपड़ा वितरण कोटा" },
+        { emoji:"🕌", category:"NGO कपड़ा अभियान", description:"कोटा के कई स्थानीय NGO और मस्जिदें नियमित रूप से कपड़े दान करती हैं — सर्दी के कपड़े, साड़ी, शर्ट और जूते मुफ्त में वितरित होते हैं।", tip:"कोटा के स्थानीय WhatsApp या Facebook ग्रुप पर 'कपड़ा वितरण' इवेंट खोजें।", searchFor:"मुफ्त कपड़ा वितरण NGO कोटा राजस्थान" },
+        { emoji:"🏛️", category:"सामाजिक कल्याण विभाग", description:"राजस्थान का सामाजिक न्याय विभाग BPL परिवारों और बेघर लोगों को विभिन्न कल्याण योजनाओं के तहत मुफ्त कपड़े देता है।", tip:"किसी भी ID प्रमाण के साथ कोटा में जिला सामाजिक कल्याण कार्यालय जाएं।", searchFor:"सामाजिक कल्याण विभाग कोटा कपड़ा योजना" }
+      ]
+    }
+  },
+  medical: {
+    en: { opening: "Your health matters — here's where to get free or low-cost medical care in Kota.", closing: "Don't delay your health. Call 181 or 1800-180-6127 for medical referrals anywhere in Rajasthan.",
+      resources: [
+        { emoji:"🏥", category:"NMCH Kota — Free OPD", description:"New Medical College Hospital on Rangbari Road offers free OPD, emergency care, and medicines under the Ayushman Bharat scheme. Open 24/7 for emergencies.", tip:"Go to the OPD counter early morning (8am) to get a token. Bring any ID if you have one — but emergencies are treated regardless.", searchFor:"NMCH New Medical College Hospital Kota OPD" },
+        { emoji:"💊", category:"Jan Aushadhi Kendra", description:"Government-run generic medicine store selling medicines at 50–90% lower prices than regular pharmacies. Available across Kota.", tip:"Ask your doctor to prescribe generic medicines — they work the same but cost far less.", searchFor:"Jan Aushadhi Kendra Kota Rajasthan" },
+        { emoji:"🧠", category:"Mental Health Support — Vandrevala Foundation", description:"Free 24/7 mental health helpline available in Hindi and English. Call 1860-2662-345 for counselling, crisis support, and referrals to local services.", tip:"You don't need to be in crisis to call — they help with stress, anxiety, depression, and family problems too.", searchFor:"free mental health helpline India Hindi" }
+      ]
+    },
+    hi: { opening: "आपका स्वास्थ्य जरूरी है — कोटा में यहाँ मुफ्त या सस्ता इलाज पाएं।", closing: "अपना स्वास्थ्य मत टालें। राजस्थान में चिकित्सा रेफरल के लिए 181 पर कॉल करें।",
+      resources: [
+        { emoji:"🏥", category:"NMCH कोटा — मुफ्त OPD", description:"रंगबाड़ी रोड पर न्यू मेडिकल कॉलेज हॉस्पिटल आयुष्मान भारत योजना के तहत मुफ्त OPD, आपातकालीन देखभाल और दवाइयाँ देता है। आपात स्थिति के लिए 24/7 खुला।", tip:"टोकन के लिए सुबह जल्दी (8 बजे) OPD काउंटर पर जाएं। ID हो तो लाएं — लेकिन आपात स्थिति में बिना ID के भी इलाज होता है।", searchFor:"NMCH कोटा OPD मुफ्त इलाज" },
+        { emoji:"💊", category:"जन औषधि केंद्र", description:"सरकारी जेनेरिक दवा स्टोर जहाँ दवाइयाँ सामान्य दुकानों से 50–90% सस्ती मिलती हैं। कोटा में कई जगह उपलब्ध।", tip:"डॉक्टर से जेनेरिक दवाइयाँ लिखवाएं — असर वही होता है, कीमत बहुत कम।", searchFor:"जन औषधि केंद्र कोटा राजस्थान" },
+        { emoji:"🧠", category:"मानसिक स्वास्थ्य — Vandrevala Foundation", description:"मुफ्त 24/7 मानसिक स्वास्थ्य हेल्पलाइन हिंदी और अंग्रेज़ी में उपलब्ध। 1860-2662-345 पर कॉल करें।", tip:"संकट में ही नहीं — तनाव, चिंता, अवसाद और पारिवारिक समस्याओं में भी मदद मिलती है।", searchFor:"मुफ्त मानसिक स्वास्थ्य हेल्पलाइन हिंदी" }
+      ]
+    }
+  },
+  jobs: {
+    en: { opening: "Finding work can be hard, but help is available — here are job resources in Kota.", closing: "Keep going — better days are ahead. Call 181 or 1800-180-6127 for welfare support while you search.",
+      resources: [
+        { emoji:"💼", category:"Rozgar Mela — Govt Job Fairs", description:"Rajasthan government regularly holds Rozgar Melas (job fairs) in Kota where companies hire on the spot. No experience needed for many roles.", tip:"Register on rajasthan.gov.in/rozgar or visit the District Employment Office in Kota to be notified of upcoming fairs.", searchFor:"Rozgar Mela job fair Kota Rajasthan 2026" },
+        { emoji:"📱", category:"NCS Portal — Free Job Search", description:"National Career Service portal (ncs.gov.in) lists thousands of local jobs in Rajasthan. Free to register and apply directly.", tip:"Create a free profile on ncs.gov.in — employers in Kota actively post openings there.", searchFor:"NCS portal job search Kota Rajasthan" },
+        { emoji:"🏛️", category:"District Employment Office, Kota", description:"Government office that registers job seekers, connects them with employers, and provides skill development programme referrals for free.", tip:"Visit with your education certificates and ID. They can refer you to free ITI or vocational training if needed.", searchFor:"District Employment Office Kota Rajasthan" }
+      ]
+    },
+    hi: { opening: "काम ढूंढना मुश्किल हो सकता है, लेकिन मदद उपलब्ध है — कोटा में ये नौकरी संसाधन हैं।", closing: "हिम्मत रखें — बेहतर दिन आएंगे। खोज के दौरान कल्याण सहायता के लिए 181 पर कॉल करें।",
+      resources: [
+        { emoji:"💼", category:"रोज़गार मेला — सरकारी जॉब फेयर", description:"राजस्थान सरकार कोटा में नियमित रूप से रोज़गार मेले आयोजित करती है जहाँ कंपनियां मौके पर ही नियुक्ति करती हैं।", tip:"rajasthan.gov.in/rozgar पर रजिस्टर करें या कोटा के जिला रोज़गार कार्यालय जाएं।", searchFor:"रोज़गार मेला कोटा राजस्थान 2026" },
+        { emoji:"📱", category:"NCS पोर्टल — मुफ्त नौकरी खोज", description:"राष्ट्रीय करियर सेवा पोर्टल (ncs.gov.in) पर राजस्थान में हजारों स्थानीय नौकरियाँ सूचीबद्ध हैं। रजिस्ट्रेशन और आवेदन मुफ्त।", tip:"ncs.gov.in पर मुफ्त प्रोफाइल बनाएं — कोटा के नियोक्ता वहाँ सक्रिय रूप से पोस्ट करते हैं।", searchFor:"NCS पोर्टल नौकरी कोटा राजस्थान" },
+        { emoji:"🏛️", category:"जिला रोज़गार कार्यालय, कोटा", description:"सरकारी कार्यालय जो नौकरी तलाशने वालों को पंजीकृत करता है और मुफ्त कौशल विकास कार्यक्रमों से जोड़ता है।", tip:"अपने शिक्षा प्रमाण पत्र और ID लेकर जाएं। ज़रूरत पड़ने पर वे मुफ्त ITI या व्यावसायिक प्रशिक्षण में रेफर कर सकते हैं।", searchFor:"जिला रोज़गार कार्यालय कोटा राजस्थान" }
+      ]
+    }
+  },
+  legal: {
+    en: { opening: "You have rights, and free legal help is available — here's where to go in Kota.", closing: "You deserve justice. Call 181 or 1800-180-6127 for referrals to legal aid services in Rajasthan.",
+      resources: [
+        { emoji:"⚖️", category:"DLSA Kota — Free Legal Aid", description:"District Legal Services Authority at the District Court Complex, Kota provides completely free legal advice, lawyers, and court representation for underprivileged citizens.", tip:"Visit Mon–Sat 10am–5pm. Bring any ID. You don't need money — the service is entirely free by law.", searchFor:"DLSA District Legal Services Authority Kota" },
+        { emoji:"📄", category:"ID Document Help", description:"If you've lost your Aadhaar, ration card, or voter ID, visit the nearest Common Service Centre (CSC / Jan Seva Kendra) in Kota to apply for duplicates at very low cost.", tip:"Search for 'Jan Seva Kendra near me' to find the closest CSC in your area.", searchFor:"Jan Seva Kendra CSC Aadhaar Kota Rajasthan" },
+        { emoji:"📞", category:"Legal Rights Helpline — 15100", description:"Rajasthan Legal Services Authority helpline. Call 15100 for free legal advice on any issue — domestic violence, property disputes, labour rights, or police complaints.", tip:"This helpline connects you directly to a lawyer for free. Available in Hindi.", searchFor:"Rajasthan Legal Services helpline 15100" }
+      ]
+    },
+    hi: { opening: "आपके अधिकार हैं, और मुफ्त कानूनी मदद उपलब्ध है — कोटा में यहाँ जाएं।", closing: "आप न्याय के हकदार हैं। राजस्थान में कानूनी सहायता के लिए 181 या 15100 पर कॉल करें।",
+      resources: [
+        { emoji:"⚖️", category:"DLSA कोटा — मुफ्त कानूनी सहायता", description:"जिला न्यायालय परिसर, कोटा में जिला विधिक सेवा प्राधिकरण वंचित नागरिकों को पूरी तरह मुफ्त कानूनी सलाह, वकील और अदालती प्रतिनिधित्व देता है।", tip:"सोम–शनि सुबह 10–शाम 5 बजे जाएं। कोई भी ID लाएं। पैसे की जरूरत नहीं — यह सेवा कानूनन मुफ्त है।", searchFor:"DLSA जिला विधिक सेवा प्राधिकरण कोटा" },
+        { emoji:"📄", category:"ID दस्तावेज़ सहायता", description:"अगर आपका आधार, राशन कार्ड या वोटर ID खो गया है, तो कोटा के नज़दीकी Jan Seva Kendra (CSC) जाएं और बहुत कम लागत में डुप्लीकेट बनवाएं।", tip:"'Jan Seva Kendra near me' सर्च करें और अपने क्षेत्र का नज़दीकी केंद्र खोजें।", searchFor:"जन सेवा केंद्र आधार कोटा राजस्थान" },
+        { emoji:"📞", category:"कानूनी अधिकार हेल्पलाइन — 15100", description:"राजस्थान विधिक सेवा प्राधिकरण हेल्पलाइन। किसी भी मुद्दे पर मुफ्त कानूनी सलाह के लिए 15100 पर कॉल करें।", tip:"यह हेल्पलाइन आपको सीधे मुफ्त वकील से जोड़ती है। हिंदी में उपलब्ध।", searchFor:"राजस्थान विधिक सेवा हेल्पलाइन 15100" }
+      ]
+    }
+  }
+};
+
+function detectCategory(query) {
+  var q = query.toLowerCase();
+  if (/food|meal|eat|hunger|hungry|bhook|khana|bhojan|roti|खाना|भोजन|भूख/.test(q)) return "food";
+  if (/shelter|sleep|stay|home|house|roof|raat|sona|ghar|आश्रय|सोना|घर|रात/.test(q)) return "shelter";
+  if (/cloth|wear|dress|blanket|kapda|kapde|कपड़|कंबल/.test(q)) return "clothing";
+  if (/doctor|medical|health|hospital|medicine|sick|ill|dawai|ilaaj|डॉक्टर|इलाज|दवाई|स्वास्थ्य/.test(q)) return "medical";
+  if (/job|work|employ|earn|naukri|kaam|नौकरी|काम|रोज़गार/.test(q)) return "jobs";
+  if (/legal|law|id|document|court|aadhar|aadhaar|kanoon|कानून|आधार|दस्तावेज़/.test(q)) return "legal";
+  return "food"; // default
+}
+
+function findResources() {
   var query = document.getElementById("queryBox").value.trim();
   if (!query) {
     document.getElementById("queryBox").style.borderColor = "#EF4444";
@@ -536,28 +647,13 @@ async function findResources() {
   resultsDiv.innerHTML = '<div class="loader"><div class="loader-ring"></div><span>' + t.loader + '</span></div>';
   resultsDiv.scrollIntoView({ behavior: "smooth", block: "start" });
 
-  var langInstruction = lang === "hi"
-    ? "IMPORTANT: Respond entirely in Hindi (Devanagari script). All JSON text fields must be in Hindi."
-    : "Respond in English.";
+  // Simulate short loading then show results
+  setTimeout(function() {
+    var category = detectCategory(query);
+    var data = DB[category][lang];
+    var parsed = { opening: data.opening, resources: data.resources, closing: data.closing };
 
-  var systemPrompt = "You are ResourceReach, a compassionate assistant helping people in India find community resources for food, shelter, clothing, medical care, jobs, and legal aid.\n\n" + langInstruction + "\n\nWhen someone describes their situation, respond ONLY with valid JSON in this exact format:\n{\"opening\":\"One warm empathetic sentence.\",\"resources\":[{\"category\":\"Short label\",\"emoji\":\"single emoji\",\"description\":\"1-2 sentences on what this resource provides.\",\"tip\":\"One specific actionable tip.\",\"searchFor\":\"What to search on Google locally in India\"}],\"closing\":\"One encouraging closing sentence mentioning helpline 181 or 1800-180-6127 for Rajasthan.\"}\n\nProvide 3-5 resources. Mention Ayushman Bharat, PM schemes, local NGOs where relevant. No extra text outside the JSON.";
-
-  try {
-    var response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-6",
-        max_tokens: 1000,
-        system: systemPrompt,
-        messages: [{ role: "user", content: query }]
-      })
-    });
-
-    var data = await response.json();
-    var raw = data.content.map(function(b) { return b.text || ""; }).join("");
-    var clean = raw.replace(/```json|```/g, "").trim();
-    var parsed = JSON.parse(clean);
+    try {
 
     var html = '<div class="results-header"><div class="results-label">' + t.aiLabel + '</div><div class="results-line"></div></div>';
     html += '<div class="result-card" style="border-left:3px solid var(--teal);"><p style="font-size:0.97rem;color:#1A3A50;font-weight:600;line-height:1.6;">' + parsed.opening + '</p></div>';
@@ -581,15 +677,15 @@ async function findResources() {
     html += '<p style="font-size:0.8rem;color:#B07A20;margin-top:8px;">' + t.hotlineSub + '</p>';
     html += '</div>';
 
-    resultsDiv.innerHTML = html;
+      resultsDiv.innerHTML = html;
+    } catch (err) {
+      resultsDiv.innerHTML = '<div class="result-card" style="border-left:3px solid #EF4444;"><h3 style="color:#DC2626;margin-bottom:8px;">' + t.errH + '</h3><p>' + t.errP + '</p></div>';
+    }
 
-  } catch (err) {
-    resultsDiv.innerHTML = '<div class="result-card" style="border-left:3px solid #EF4444;"><h3 style="color:#DC2626;margin-bottom:8px;">' + t.errH + '</h3><p>' + t.errP + '</p></div>';
-  }
-
-  btn.disabled = false;
-  document.getElementById("btnIcon").textContent = "✨";
-  document.getElementById("btnText").textContent = T[lang].btnText;
+    btn.disabled = false;
+    document.getElementById("btnIcon").textContent = "✨";
+    document.getElementById("btnText").textContent = T[lang].btnText;
+  }, 900);
 }
 
 function sharePage() {
